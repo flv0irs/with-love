@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Year Wish & Special Letter</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+body {
+font-family: 'Plus Jakarta Sans', sans-serif;
+background: linear-gradient(135deg, #e9d5ff 0%, #dbeafe 50%, #fbcfe8 100%);
+min-height: 100vh;
+margin: 0;
+overflow-x: hidden;
+}
+.font-serif-custom {
+font-family: 'Playfair Display', serif;
+}
+.font-handwriting {
+font-family: 'Dancing Script', cursive;
+}
+/* Snowflake Canvas Overlay */
+#snowCanvas {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+z-index: 10;
+}
+/* Animated 3D Envelope Styling */
+.envelope-wrapper {
+perspective: 1000px;
+}
+.envelope {
+width: 280px;
+height: 190px;
+background-color: #ffffff;
+position: relative;
+border-radius: 12px;
+box-shadow: 0 20px 40px rgba(147, 51, 234, 0.15), 0 10px 15px rgba(0, 0, 0, 0.05);
+cursor: pointer;
+transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+@media (min-width: 640px) {
+.envelope {
+width: 340px;
+height: 220px;
+}
+}
+.envelope:hover {
+transform: translateY(-8px) scale(1.02);
+box-shadow: 0 25px 50px rgba(147, 51, 234, 0.25), 0 12px 20px rgba(0, 0, 0, 0.08);
+}
+/* Envelope Flap */
+.envelope-flap {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+height: 50%;
+background: #fdf4ff;
+clip-path: polygon(0 0, 100% 0, 50% 100%);
+transform-origin: top;
+transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+z-index: 4;
+border-top-left-radius: 12px;
+border-top-right-radius: 12px;
+}
+.envelope.open .envelope-flap {
+transform: rotateX(180deg);
+}
+/* Envelope Pocket Folds */
+.envelope-pocket {
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+border-radius: 12px;
+z-index: 2;
+clip-path: polygon(0 0, 50% 45%, 100% 0, 100% 100%, 0 100%);
+}
+/* Inside Letter Peek */
+.envelope-paper {
+position: absolute;
+bottom: 12px;
+left: 50%;
+transform: translateX(-50%);
+width: 88%;
+height: 75%;
+background: #ffffff;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+transition: transform 0.5s ease 0.2s;
+z-index: 3;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 12px;
+border: 1px dashed #f472b6;
+}
+.envelope.open .envelope-paper {
+transform: translateX(-50%) translateY(-40px);
+}
+/* Gold Wax Seal */
+.wax-seal {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 44px;
+height: 44px;
+background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #ffffff;
+box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
+z-index: 5;
+transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.envelope.open .wax-seal {
+opacity: 0;
+transform: translate(-50%, -50%) scale(0.5);
+}
+/* Modal Overlay & Card Animation */
+.modal-backdrop {
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.4s ease;
+}
+.modal-backdrop.active {
+opacity: 1;
+pointer-events: auto;
+}
+.letter-modal {
+transform: scale(0.9) translateY(20px);
+transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal-backdrop.active .letter-modal {
+transform: scale(1) translateY(0);
+}
+/* Custom Scrollbar for Letter Content */
+.custom-scrollbar::-webkit-scrollbar {
+width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+background: #f3e8ff;
+border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+background: #c084fc;
+border-radius: 10px;
+}
+</style>
+</head>
+<body class="flex items-center justify-center p-4 sm:p-6 min-h-screen relative selection:bg-pink-200 selection:text-pink-900">
+<!-- Canvas for Floating Big Snowflake Particle System -->
+<canvas id="snowCanvas"></canvas>
+<!-- Main Card Container -->
+<main class="w-full max-w-lg z-20 flex flex-col items-center text-center my-auto">
+<!-- Header Text Section -->
+<div class="space-y-3 mb-8 sm:mb-10 animate-fade-in">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-white/80 shadow-sm text-xs sm:text-sm text-purple-900 font-medium">
+<i class="fa-solid fa-sparkles text-pink-500"></i>
+<span>A Special New Year Greeting</span>
+</div>
+<h1 class="text-2xl sm:text-4xl font-serif-custom font-bold text-slate-800 leading-snug tracking-tight px-2">
+"Someone who will always be by your side, who truly values you."
+</h1>
+<p class="text-xs sm:text-sm text-purple-950/80 font-medium">
+Click the envelope below to open your letter ✨
+</p>
+</div>
+<!-- Interactive Envelope -->
+<div class="envelope-wrapper my-2" onclick="openEnvelope()">
+<div class="envelope" id="envelope">
+<div class="envelope-flap"></div>
+<div class="wax-seal">
+<i class="fa-solid fa-heart text-lg"></i>
+</div>
+<div class="envelope-paper">
+<i class="fa-solid fa-snowflake text-pink-400 text-xl mb-1"></i>
+<p class="font-serif-custom text-xs font-semibold text-purple-900">For You</p>
+<p class="text-[10px] text-purple-600/70">Click to read</p>
+</div>
+<div class="envelope-pocket"></div>
+</div>
+</div>
+<!-- Footer Info -->
+<footer class="mt-8 text-center text-xs text-purple-950/70 font-medium tracking-wide">
+Designed with care & love ✨
+</footer>
+</main>
+<!-- Letter Modal Screen -->
+<div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" id="letterModal">
+<div class="letter-modal bg-white/95 backdrop-blur-md w-full max-w-xl rounded-2xl shadow-2xl border border-white/80 overflow-hidden flex flex-col max-h-[90vh]">
+<!-- Modal Header & Language Switcher -->
+<div class="p-4 sm:p-6 bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 border-b border-purple-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-envelope-open-text text-pink-500 text-xl"></i>
+<span class="font-serif-custom text-lg font-bold text-slate-800">Special Letter</span>
+</div>
+<!-- Language Tabs -->
+<div class="flex bg-white/80 p-1 rounded-full border border-purple-200/60 shadow-inner text-xs font-medium">
+<button onclick="switchLanguage('fr')" id="btn-fr" class="px-3 py-1.5 rounded-full transition-all duration-200 bg-purple-600 text-white shadow-sm">
+Français <span class="text-[10px] opacity-75">(Original)</span>
+</button>
+<button onclick="switchLanguage('en')" id="btn-en" class="px-3 py-1.5 rounded-full transition-all duration-200 text-slate-600 hover:text-purple-600">
+English
+</button>
+<button onclick="switchLanguage('tr')" id="btn-tr" class="px-3 py-1.5 rounded-full transition-all duration-200 text-slate-600 hover:text-purple-600">
+Türkçe
+</button>
+</div>
+</div>
+<!-- Letter Body Content -->
+<div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 text-slate-700 leading-relaxed text-sm sm:text-base">
+<!-- French Content (Default Original) -->
+<div id="content-fr" class="space-y-4 font-serif-custom">
+<p class="font-bold text-lg text-purple-900">Mon très cher…</p>
+<p>Cela ne fait que quelques mois que nous nous connaissons, et pourtant, tu es devenu si naturellement un endroit où je me sens en sécurité.</p>
+<p>Nos conversations me rendent heureuse. J'ai confiance en toi d'une manière assez rare pour moi. Je crois que tu es le premier homme à m'avoir fait ressentir une confiance pareille.</p>
+<p>Tu m'as souvent conseillé de prendre soin de moi, de ne pas oublier de manger, de boire suffisamment d'eau et de penser à ma santé. Mais j'espère que tu suivras tes propres conseils, toi aussi. Accorde-toi la même attention et la même douceur que tu m'encourages à avoir envers moi-même.</p>
+<p>Peu importe le temps qu'il nous faudra avant de nous retrouver, ou le moment où tu pourras me répondre, je pourrais attendre 33 550 336 mois, s'il le fallait. Et chaque fois, sans hésiter, je te dirais : « à demain ».</p>
+<p>Quoi qu'il arrive, où que tu sois et où que la vie te mène, je serai toujours là pour te soutenir.</p>
+<p>Prends soin de toi, d'accord ?</p>
+<p>Je suis vraiment heureuse que tu sois là.</p>
+<p class="font-handwriting text-2xl text-pink-600 pt-2 text-right">Naz ♥</p>
+</div>
+<!-- English Content -->
+<div id="content-en" class="space-y-4 font-serif-custom hidden">
+<p class="font-bold text-lg text-purple-900">My dearest…</p>
+<p>It has only been a few months since we met, and yet, you have so naturally become a place where I feel safe.</p>
+<p>Our conversations make me happy. I trust you in a way that is quite rare for me. I believe you are the first man who has ever made me feel such trust.</p>
+<p>You have often advised me to take care of myself, not to forget to eat, to drink enough water, and to think about my health. But I hope you will follow your own advice, too. Give yourself the same attention and gentleness that you encourage me to have toward myself.</p>
+<p>No matter how long it takes for us to find each other again, or when you are able to answer me, I could wait 33,550,336 months if I had to. And every time, without hesitation, I would tell you: "See you tomorrow."</p>
+<p>Whatever happens, wherever you are and wherever life takes you, I will always be here to support you.</p>
+<p>Take care of yourself, okay?</p>
+<p>I am truly happy that you are here.</p>
+<p class="font-handwriting text-2xl text-pink-600 pt-2 text-right">Naz ♥</p>
+</div>
+<!-- Turkish Content -->
+<div id="content-tr" class="space-y-4 font-serif-custom hidden">
+<p class="font-bold text-lg text-purple-900">En değerlim…</p>
+<p>Tanışalı sadece birkaç ay oldu ama yine de o kadar doğal bir şekilde güvende hissettiğim bir liman haline geldin ki.</p>
+<p>Konuşmalarımız beni çok mutlu ediyor. Sana, benim için oldukça nadir görülen bir şekilde güveniyorum. Sanırım bana böyle bir güveni hissettiren ilk erkek sensin.</p>
+<p>Bana sık sık kendime dikkat etmemi, yemek yemeyi unutmamamı, yeterince su içmemi ve sağlığımı düşünmemi tavsiye ettin. Ama umarım sen de kendi tavsiyelerine uyarsın. Kendine, bana göstermem için ilham verdiğin o özeni ve nezaketi göster.</p>
+<p>Tekrar buluşmamız ne kadar sürerse sürsün ya da bana ne zaman cevap verebilirsen ver, gerekirse 33.550.336 ay bekleyebilirim. Ve her defasında, tereddüt etmeden sana şöyle derdim: « Yarın görüşürüz ».</p>
+<p>Ne olursa olsun, nerede olursan ol ve hayat seni nereye götürürse götürsün, seni desteklemek için her zaman burada olacağım.</p>
+<p>Kendine çok iyi bak, olur mu?</p>
+<p>Burada olduğun için gerçekten çok mutluyum.</p>
+<p class="font-handwriting text-2xl text-pink-600 pt-2 text-right">Naz ♥</p>
+</div>
+</div>
+<!-- Modal Actions / Footer -->
+<div class="p-4 sm:p-5 bg-slate-50 border-t border-purple-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+<a href="https://instagram.com/sinfulv0w" target="_blank" rel="noopener noreferrer" 
+class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+<i class="fa-brands fa-instagram text-lg"></i>
+<span>Connect on Instagram (@sinfulv0w)</span>
+</a>
+<button onclick="closeModal()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-medium text-xs sm:text-sm hover:bg-slate-100 transition-colors">
+Close Letter
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Script -->
+<script>
+// Envelope & Modal Logic
+function openEnvelope() {
+const env = document.getElementById('envelope');
+const modal = document.getElementById('letterModal');
+env.classList.add('open');
+setTimeout(() => {
+modal.classList.add('active');
+}, 500);
+}
+function closeModal() {
+const env = document.getElementById('envelope');
+const modal = document.getElementById('letterModal');
+modal.classList.remove('active');
+setTimeout(() => {
+env.classList.remove('open');
+}, 300);
+}
+// Language Switcher Logic
+function switchLanguage(lang) {
+const contents = ['fr', 'en', 'tr'];
+contents.forEach(l => {
+const contentEl = document.getElementById(content-${l});
+const btnEl = document.getElementById(btn-${l});
+if (l === lang) {
+contentEl.classList.remove('hidden');
+btnEl.className = "px-3 py-1.5 rounded-full transition-all duration-200 bg-purple-600 text-white shadow-sm";
+} else {
+contentEl.classList.add('hidden');
+btnEl.className = "px-3 py-1.5 rounded-full transition-all duration-200 text-slate-600 hover:text-purple-600";
+}
+});
+}
+// Big Snowflakes Canvas System
+const canvas = document.getElementById('snowCanvas');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+width = canvas.width = window.innerWidth;
+height = canvas.height = window.innerHeight;
+});
+class Snowflake {
+constructor() {
+this.reset();
+}
+reset() {
+this.x = Math.random() * width;
+this.y = Math.random() * -height;
+this.size = Math.random() * 14 + 10;
+this.speedY = Math.random() * 1.2 + 0.6;
+this.speedX = Math.random() * 0.8 - 0.4;
+this.opacity = Math.random() * 0.5 + 0.4;
+this.rotation = Math.random() * Math.PI * 2;
+this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+}
+update() {
+this.y += this.speedY;
+this.x += Math.sin(this.y * 0.01) + this.speedX;
+this.rotation += this.rotationSpeed;
+if (this.y > height + 20) {
+this.reset();
+}
+}
+draw() {
+ctx.save();
+ctx.translate(this.x, this.y);
+ctx.rotate(this.rotation);
+ctx.fillStyle = rgba(255, 255, 255, ${this.opacity});
+ctx.shadowBlur = 8;
+ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+ctx.beginPath();
+for (let i = 0; i < 6; i++) {
+ctx.rotate(Math.PI / 3);
+ctx.moveTo(0, 0);
+ctx.lineTo(0, this.size);
+ctx.moveTo(0, this.size * 0.5);
+ctx.lineTo(this.size * 0.3, this.size * 0.7);
+ctx.moveTo(0, this.size * 0.5);
+ctx.lineTo(-this.size * 0.3, this.size * 0.7);
+}
+ctx.strokeStyle = rgba(255, 255, 255, ${this.opacity});
+ctx.lineWidth = 1.8;
+ctx.stroke();
+ctx.restore();
+}
+}
+const snowflakes = Array.from({ length: 35 }, () => new Snowflake());
+function animateSnow() {
+ctx.clearRect(0, 0, width, height);
+snowflakes.forEach(flake => {
+flake.update();
+flake.draw();
+});
+requestAnimationFrame(animateSnow);
+}
+animateSnow();
+</script>
+</body>
+  </html>
